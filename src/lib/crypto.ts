@@ -1,0 +1,26 @@
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+
+function key() {
+  const encoded = process.env.TOKEN_ENCRYPTION_KEY;
+  if (!encoded) throw new Error("TOKEN_ENCRYPTION_KEY is not configured");
+  const decoded = Buffer.from(encoded, "base64");
+  if (decoded.length !== 32) throw new Error("TOKEN_ENCRYPTION_KEY must be a base64-encoded 32-byte key");
+  return decoded;
+}
+
+export function encryptToken(value: string) {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key(), iv);
+  const encrypted = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), encrypted]).toString("base64");
+}
+
+export function decryptToken(value: string) {
+  const bytes = Buffer.from(value, "base64");
+  const iv = bytes.subarray(0, 12);
+  const tag = bytes.subarray(12, 28);
+  const encrypted = bytes.subarray(28);
+  const decipher = createDecipheriv("aes-256-gcm", key(), iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString("utf8");
+}

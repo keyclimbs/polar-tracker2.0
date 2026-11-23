@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?
+  polar     PolarConnection?
+  syncRuns  SyncRun[]
+  exercises Exercise[]
+}
+
+model PolarConnection {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  polarUserId    String?
+  accessTokenEnc String
+  refreshTokenEnc String?
+  expiresAt      DateTime?
+  connectedAt    DateTime @default(now())
+}
+
+model SyncRun {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String
+  syncType  String
+  payloadLog Json?
+  errors    Json?
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+}
+
+model NightlyRecharge {
+  id          String   @id @default(cuid())
+  date        String   @unique
+  heartRateAvg Float?
+  hrvSamples  Json?
+  ansCharge   Int?
+  sleepScore  Int?
+  rawJson     Json
+}
+
+model SleepSession {
+  id              String   @id @default(cuid())
+  date            String   @unique
+  sleepStart      DateTime
+  sleepEnd        DateTime
+  durationMinutes Int
+  stagesJson      Json
+  rawJson         Json
+}
+
+model DailyActivity {
+  id        String   @id @default(cuid())
+  date      String   @unique
+  rawJson   Json
+}
+
+model ContinuousHrSample {
+  id        String   @id @default(cuid())
+  timestamp DateTime
+  bpm       Int
+  rawJson   Json?
+}
+
+model Exercise {
+  id        String   @id @default(cuid())
+  polarId   String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sport     String
+  startTime DateTime
+  duration  Int
+  calories  Int?
+  avgHr     Int?
+  maxHr     Int?
+  zonesJson Json?
+  trimp     Float?
+  strain    Float?
+  sRPE      Int?
+  notes     String?
+}
+
+model MetricBaseline {
+  id          String @id @default(cuid())
+  metricType  String
+  windowDays  Int
+  mean        Float
+  stdDev      Float
+  sampleCount Int
+  @@unique([metricType, windowDays])
+}
