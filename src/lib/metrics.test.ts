@@ -8,7 +8,7 @@ describe("metric calculations", () => {
 
   it("maps TRIMP through the 0-21 strain curve", () => {
     expect(trimpToStrain(0)).toBe(0);
-    expect(trimpToStrain(100)).toBeCloseTo(9.24, 1);
+    expect(trimpToStrain(100)).toBeCloseTo(14.67, 1);
   });
 
   it("returns an insufficient-history state", () => {

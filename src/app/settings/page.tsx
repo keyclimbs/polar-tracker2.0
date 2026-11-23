@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export default function SettingsPage() {
   return (
     <main className="settings-page">
-      <a href="/">← Dashboard</a>
+      <Link href="/">← Dashboard</Link>
       <h1>Settings & data</h1>
       <section><h2>Polar connection</h2><p>Connect an Ignite 3 or another compatible Polar device through AccessLink v3.</p><a className="connect" href="/api/polar/authorize">Connect Polar</a></section>
       <section><h2>Demo Mode</h2><label><input type="checkbox" defaultChecked/> Use deterministic 30-day demo data</label><p>Demo data is isolated and never sent to Polar.</p></section>
